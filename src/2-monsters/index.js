@@ -8,6 +8,8 @@ import "./index.css";
 
   1. 위 주소를 호출하여 데이터 로딩을 처리해주세요!
     - componentDidMount()
+      data loading => API 호출 / 렌더 후에 호출
+
     - fetch
     - setState (monsters 에 저장)
 
@@ -21,26 +23,41 @@ import "./index.css";
 ***********************************************************/
 
 class App extends Component {
-  state = {
-    monsters: [],
-    userInput: ""
-  };
+    state = {
+        monsters: [],
+        userInput: "",
+    };
 
-  // 데이터 로딩
+    // 데이터 로딩
+    componentDidMount() {
+        fetch("https://jsonplaceholder.typicode.com/users")
+            .then((res) => res.json()) //JSON body를 JS로 변환
+            .then((res) => this.setState({ monsters: res }));
+    }
 
-  // SearchBox에 props로 넘겨줄 handleChange 메소드 정의
+    // SearchBox에 props로 넘겨줄 handleChange 메소드 정의
+    handleChange = (e) => {
+        this.setState({ userInput: e.target.value });
+    };
 
-  render() {
-    // 필터링 로직
+    render() {
+        // 필터링 로직
+        const { monsters, userInput } = this.state;
+        const searchResult = monsters.filter((mon) => {
+            const result = mon.name.toLowerCase().includes(userInput);
+            return result;
+        });
 
-    return (
-      <div className="App">
-        <h1>컴포넌트 재사용 연습!</h1>
-        {/* <SearchBox handleChange=정의한메소드 /> */}
-        {/* <CardList monsters=필터링 된 몬스터리스트 /> */}
-      </div>
-    );
-  }
+        return (
+            <div className="App">
+                <h1>컴포넌트 재사용 연습!</h1>
+                <SearchBox handleChange={this.handleChange} />
+                {/* <SearchBox handleChange=정의한메소드 /> */}
+                <CardList monsters={searchResult} />
+                {/* <CardList monsters=필터링 된 몬스터리스트 /> */}
+            </div>
+        );
+    }
 }
 
 export default App;
